@@ -6,7 +6,14 @@ function App() {
 
   return (
     <div>
-      <button onClick={claveConnector.connect}>build</button>
+      <button
+        onClick={async () => {
+          console.log(await claveConnector.connect());
+          console.log(claveConnector._isConnecting);
+        }}
+      >
+        build
+      </button>
     </div>
   );
 }

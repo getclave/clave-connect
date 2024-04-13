@@ -86,12 +86,11 @@ class ClaveConnect implements ClaveConnectInterface {
 }
 
 const ClaveConnectContext = createContext<ClaveConnectInterface | null>(null);
+const claveConnector = new ClaveConnect();
 
 export const ClaveConnectProvider = ({ children }: { children: ReactNode }) => {
-  const ClaveConnector = new ClaveConnect();
-
   return (
-    <ClaveConnectContext.Provider value={ClaveConnector}>
+    <ClaveConnectContext.Provider value={claveConnector}>
       <ConnectModal />
       {children}
     </ClaveConnectContext.Provider>
