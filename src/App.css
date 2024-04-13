@@ -13,7 +13,7 @@
 
 .modalWrapper {
   width: 360px;
-  height: 400px;
+  height: 460px;
   background-color: #191a1a;
   text-rendering: optimizespeed;
   -webkit-font-smoothing: antialiased;
@@ -45,6 +45,11 @@
   font-size: 12px;
 }
 
+.qrWrapper {
+  display: flex;
+  justify-content: center;
+}
+
 .partnerLogo {
   width: 30px;
   margin-right: 5px;
@@ -68,4 +73,20 @@
 
 .openAppButton:hover {
   background-color: gray;
+  cursor: pointer;
+}
+
+.dontHaveClaveButton {
+  border: none;
+  padding: 2px 7px;
+  border-radius: 5px;
+  background-color: transparent;
+  color: silver;
+  font-weight: 400;
+  margin-top: 6px;
+}
+
+.dontHaveClaveButton:hover {
+  background-color: gray;
+  cursor: pointer;
 }
