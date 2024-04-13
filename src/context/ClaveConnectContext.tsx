@@ -1,4 +1,5 @@
-import { ReactNode, createContext } from "react";
+import { ReactNode, createContext, useContext } from "react";
+import { ConnectModal } from "../components";
 
 interface ClaveConnectInterface {
   connect: () => Promise<void>;
@@ -18,13 +19,6 @@ type AccountInfoType = {
 
 class ClaveConnect implements ClaveConnectInterface {
   /**
-   * @function connect
-   * @description Call this function to connect user's Clave wallet with dapp
-   * @return {Promise<void>} Returns promise with no info
-   */
-  async connect(): Promise<void> {}
-
-  /**
    * @description Property to view if user is connected or not
    * @returns {boolean} Returns true for connected, false for not-connected
    */
@@ -35,6 +29,15 @@ class ClaveConnect implements ClaveConnectInterface {
    * @returns {boolean} Returns true for connected, false for not-connected
    */
   _isConnecting = false;
+
+  /**
+   * @function connect
+   * @description Call this function to connect user's Clave wallet with dapp
+   * @return {Promise<void>} Returns promise with no info
+   */
+  async connect(): Promise<void> {
+    this._isConnecting = true;
+  }
 
   /**
    * @description Property to view accountInfo after connection provided
@@ -82,12 +85,20 @@ class ClaveConnect implements ClaveConnectInterface {
   verifySig = (signature: string) => Promise.resolve(true);
 }
 
-const ClaveConnectContext = createContext<null | ClaveConnectInterface>(null);
+const ClaveConnectContext = createContext<ClaveConnectInterface | null>(null);
 
 export const ClaveConnectProvider = ({ children }: { children: ReactNode }) => {
   const ClaveConnector = new ClaveConnect();
 
   return (
-    <ClaveConnectContext.Provider value={ClaveConnector}>{children}</ClaveConnectContext.Provider>
+    <ClaveConnectContext.Provider value={ClaveConnector}>
+      <ConnectModal />
+      {children}
+    </ClaveConnectContext.Provider>
   );
+};
+
+export const useClaveWallet = () => {
+  const claveConnect = useContext(ClaveConnectContext);
+  return claveConnect as ClaveConnectInterface;
 };
