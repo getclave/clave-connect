@@ -1,5 +1,15 @@
-import { ReactNode, createContext, useContext } from "react";
+import { ReactNode, createContext, useContext, useMemo, useState } from "react";
 import { ConnectModal } from "../components";
+
+type ClaveConnectObjectType = {
+  isConnected: boolean;
+  _isConnecting: boolean;
+  accountInfo: AccountInfoType;
+};
+
+type AccountInfoType = {
+  address: string;
+};
 
 interface ClaveConnectInterface {
   connect: () => Promise<void>;
@@ -13,37 +23,25 @@ interface ClaveConnectInterface {
   verifySig: (signature: string) => Promise<boolean>;
 }
 
-type AccountInfoType = {
-  address: string;
+const ClaveConnectObjectDefault: ClaveConnectObjectType = {
+  isConnected: false,
+  _isConnecting: false,
+  accountInfo: { address: "0x" },
 };
 
-class ClaveConnect implements ClaveConnectInterface {
-  /**
-   * @description Property to view if user is connected or not
-   * @returns {boolean} Returns true for connected, false for not-connected
-   */
-  isConnected = false;
+const ClaveConnectContext = createContext<ClaveConnectInterface | null>(null);
 
-  /**
-   * @protected Do not use this property! This is only for sdk development
-   * @returns {boolean} Returns true for connected, false for not-connected
-   */
-  _isConnecting = false;
+export const ClaveConnectProvider = ({ children }: { children: ReactNode }) => {
+  const [claveConnectObject, setClaveConnectObject] = useState(ClaveConnectObjectDefault);
 
   /**
    * @function connect
    * @description Call this function to connect user's Clave wallet with dapp
    * @return {Promise<void>} Returns promise with no info
    */
-  async connect(): Promise<void> {
-    this._isConnecting = true;
+  async function connect(): Promise<void> {
+    setClaveConnectObject((prev) => ({ ...prev, _isConnecting: true }));
   }
-
-  /**
-   * @description Property to view accountInfo after connection provided
-   * @returns {AccountInfoType} Returns account details
-   */
-  accountInfo = { address: "0x" };
 
   /**
    * @function prepareTxn
@@ -51,7 +49,9 @@ class ClaveConnect implements ClaveConnectInterface {
    * @param {Array<string>} transactions Give an array of transactions e.g [contract.approve(param), contract.transferFrom(param)
    * @returns {string} Returns the hash of the transaction
    */
-  prepareTxn = (transactions: Array<string>) => "hash";
+  function prepareTxn(transactions: Array<string>) {
+    return "hash";
+  }
 
   /**
    * @function sendTxn
@@ -59,14 +59,18 @@ class ClaveConnect implements ClaveConnectInterface {
    * @param {string} txnHash Pass the value returned from "prepareTxn"
    * @returns {boolean} Returns true or false depending on the success
    */
-  sendTxn = async (txnHash: string) => Promise.resolve(true);
+  async function sendTxn(txnHash: string) {
+    return Promise.resolve(true);
+  }
 
   /**
    * @function disconnect
    * @description Function to disconnect the user from the dapp.
    * @returns {boolean} Returns if the disconnect operation succeeds or not
    */
-  disconnect = () => true;
+  function disconnect() {
+    return true;
+  }
 
   /**
    * @function sign
@@ -74,7 +78,9 @@ class ClaveConnect implements ClaveConnectInterface {
    * @param {string} message Pass the eip1271 supported message to be signed by smart contract wallet
    * @returns {Promise<string>} Returns the signature
    */
-  sign = (message: string) => Promise.resolve("signature");
+  async function sign(message: string) {
+    return Promise.resolve("signature");
+  }
 
   /**
    * @function verifySig
@@ -82,15 +88,24 @@ class ClaveConnect implements ClaveConnectInterface {
    * @param {string} signature Pass the signature received from wallet
    * @returns {Promise<boolean>} Returns true if signature is valid
    */
-  verifySig = (signature: string) => Promise.resolve(true);
-}
+  async function verifySig(signature: string) {
+    return Promise.resolve(true);
+  }
 
-const ClaveConnectContext = createContext<ClaveConnectInterface | null>(null);
-const claveConnector = new ClaveConnect();
+  const ClaveConnector = useMemo(() => {
+    return {
+      ...claveConnectObject,
+      connect,
+      prepareTxn,
+      sendTxn,
+      disconnect,
+      sign,
+      verifySig,
+    };
+  }, [claveConnectObject]);
 
-export const ClaveConnectProvider = ({ children }: { children: ReactNode }) => {
   return (
-    <ClaveConnectContext.Provider value={claveConnector}>
+    <ClaveConnectContext.Provider value={ClaveConnector}>
       <ConnectModal />
       {children}
     </ClaveConnectContext.Provider>
