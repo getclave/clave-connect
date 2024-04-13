@@ -1,5 +1,7 @@
-import { ReactNode, createContext, useContext, useMemo, useState } from "react";
+import { ReactNode, createContext, useContext, useEffect, useMemo, useState } from "react";
 import { ConnectModal } from "../components";
+import { v4 as uuidv4 } from "uuid";
+import { io } from "socket.io-client";
 
 type ClaveConnectObjectType = {
   isConnected: boolean;
@@ -8,7 +10,7 @@ type ClaveConnectObjectType = {
 };
 
 type AccountInfoType = {
-  address: string;
+  address: string | null;
 };
 
 interface ClaveConnectInterface {
@@ -21,18 +23,29 @@ interface ClaveConnectInterface {
   disconnect: () => boolean;
   sign: (message: string) => Promise<string>;
   verifySig: (signature: string) => Promise<boolean>;
+  connectionId: string;
 }
 
 const ClaveConnectObjectDefault: ClaveConnectObjectType = {
   isConnected: false,
   _isConnecting: false,
-  accountInfo: { address: "0x" },
+  accountInfo: { address: null },
 };
 
 const ClaveConnectContext = createContext<ClaveConnectInterface | null>(null);
 
 export const ClaveConnectProvider = ({ children }: { children: ReactNode }) => {
   const [claveConnectObject, setClaveConnectObject] = useState(ClaveConnectObjectDefault);
+  const connectionId = useMemo(() => {
+    const claveConnectId = localStorage.getItem("clave-connect-id");
+    if (claveConnectId != null) {
+      return claveConnectId;
+    } else {
+      const newId = uuidv4();
+      localStorage.setItem("clave-connect-id", newId);
+      return newId;
+    }
+  }, []);
 
   /**
    * @function connect
@@ -101,8 +114,30 @@ export const ClaveConnectProvider = ({ children }: { children: ReactNode }) => {
       disconnect,
       sign,
       verifySig,
+      connectionId,
     };
-  }, [claveConnectObject]);
+  }, [claveConnectObject, connectionId]);
+
+  useEffect(() => {
+    const socket = io("localhost:8000");
+    if (connectionId != null) {
+      socket.on(connectionId, (msg) => {
+        if (msg.startsWith("add:")) {
+          setClaveConnectObject((prev) => ({
+            ...prev,
+            _isConnecting: false,
+            isConnected: true,
+            accountInfo: { address: msg.split(":")[1] },
+          }));
+        }
+      });
+    }
+    return () => {
+      if (connectionId != null) {
+        socket.off(connectionId);
+      }
+    };
+  }, [connectionId]);
 
   return (
     <ClaveConnectContext.Provider value={ClaveConnector}>
