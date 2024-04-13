@@ -5,14 +5,17 @@ function App() {
   const claveConnector = useClaveWallet();
 
   return (
-    <div>
+    <div style={{ position: "relative" }}>
       <button
         onClick={async () => {
-          console.log(await claveConnector.connect());
-          console.log(claveConnector._isConnecting);
+          await claveConnector.connect({
+            name: "Koi Finance",
+            image:
+              "https://raw.githubusercontent.com/getclave/clave-lists/master/dapp-list/logos/koi.png",
+          });
         }}
       >
-        build
+        connect
       </button>
     </div>
   );

@@ -1,0 +1,71 @@
+.modalBack {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 100;
+}
+
+.modalWrapper {
+  width: 360px;
+  height: 400px;
+  background-color: #191a1a;
+  text-rendering: optimizespeed;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  padding: 10px;
+  border-radius: 20px;
+  color: silver;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  border-color: antiquewhite;
+  border-width: 0.5px;
+  border-style: solid;
+  z-index: 1000;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modalFooter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+
+.partnerLogo {
+  width: 30px;
+  margin-right: 5px;
+  border-radius: 5px;
+}
+
+.closeButton {
+  position: absolute;
+  right: 20px;
+  top: 0;
+}
+
+.openAppButton {
+  border: none;
+  padding: 2px 7px;
+  border-radius: 5px;
+  background-color: transparent;
+  color: #949e9e;
+  font-weight: 700;
+}
+
+.openAppButton:hover {
+  background-color: gray;
+}

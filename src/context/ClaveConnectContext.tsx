@@ -7,14 +7,21 @@ type ClaveConnectObjectType = {
   isConnected: boolean;
   _isConnecting: boolean;
   accountInfo: AccountInfoType;
+  dappInfo?: DappInfoType;
 };
 
 type AccountInfoType = {
   address: string | null;
 };
 
+type DappInfoType = {
+  name: string;
+  desc?: string;
+  image: string;
+};
+
 interface ClaveConnectInterface {
-  connect: () => Promise<void>;
+  connect: (dappInfo: DappInfoType) => Promise<void>;
   isConnected: boolean;
   _isConnecting: boolean;
   accountInfo: AccountInfoType;
@@ -24,6 +31,7 @@ interface ClaveConnectInterface {
   sign: (message: string) => Promise<string>;
   verifySig: (signature: string) => Promise<boolean>;
   connectionId: string;
+  dappInfo?: DappInfoType;
 }
 
 const ClaveConnectObjectDefault: ClaveConnectObjectType = {
@@ -52,8 +60,8 @@ export const ClaveConnectProvider = ({ children }: { children: ReactNode }) => {
    * @description Call this function to connect user's Clave wallet with dapp
    * @return {Promise<void>} Returns promise with no info
    */
-  async function connect(): Promise<void> {
-    setClaveConnectObject((prev) => ({ ...prev, _isConnecting: true }));
+  async function connect(dappInfo: DappInfoType): Promise<void> {
+    setClaveConnectObject((prev) => ({ ...prev, _isConnecting: true, dappInfo }));
   }
 
   /**
@@ -141,7 +149,7 @@ export const ClaveConnectProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <ClaveConnectContext.Provider value={ClaveConnector}>
-      <ConnectModal />
+      {ClaveConnector._isConnecting && <ConnectModal />}
       {children}
     </ClaveConnectContext.Provider>
   );
